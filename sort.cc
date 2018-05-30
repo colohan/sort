@@ -21,11 +21,6 @@ bool compare_records (Record a, Record b) {
   return memcmp(a.key, b.key, 10) < 0;
 }
 
-void usage_error(char *prog_name) {
-  cerr << "Usage: " << prog_name << ": <data_set_size_in_bytes>" << endl;
-  cerr << "Note that data_set_size_in_bytes must be at least 100." << endl;
-}
-
 string elapsed_time(timeval start, timeval end) {
   timeval diff;
   diff.tv_sec = end.tv_sec - start.tv_sec;
@@ -43,73 +38,30 @@ string elapsed_time(timeval start, timeval end) {
 
 int main(int argc, char **argv) {
   if (argc != 2) {
-    usage_error(argv[0]);
+    cerr << "Usage: " << argv[0] << " <data_file_name>" << endl;
     return 8;
   }
 
-  uint64_t data_set_size = atoll(argv[1]);
-
-  if (data_set_size < 100) {
-    usage_error(argv[0]);
-    return 8;
-  }
-
-  uint64_t num_recs = data_set_size / 100;
-  cout << "data_set_size: " << data_set_size << endl;
-  cout << "num_recs:      " << num_recs << endl;
-  cout << "ram_required:  " << data_set_size / 1024 / 1024 / 1024 << "GB"
-       << endl;
-
-  struct timeval start_generation;
-  {
-    int rc = gettimeofday(&start_generation, NULL);
-    assert(rc == 0);
-  }
-
-  // Invoke gensort, and have it put its output into a shared memory segment
-  // instead of a file.  (This is done through the preload.so wrapper black
-  // magic.)
-  cout << "GENERATING DATA ===========================================" << endl;
-  {
-    ostringstream cmd;
-    cmd << "SORT_NUM_RECS=" << num_recs
-	<< " LD_PRELOAD=$PWD/preload.so ./gensort-1.5/gensort "
-	<< num_recs << " sort_data";
-    system(cmd.str().c_str());
-  }
-
-  struct timeval start_verify_input;
-  {
-    int rc = gettimeofday(&start_verify_input, NULL);
-    assert(rc == 0);
-  }
-
-  // Invoke valsort to verify that our input is not sorted:
-  cout << "VERIFYING SORT INPUT ======================================" << endl;
-  {
-    ostringstream cmd;
-    cmd << "VERIFY=1 SORT_NUM_RECS=" << num_recs
-	<< " LD_PRELOAD=$PWD/preload.so ./gensort-1.5/valsort sort_data";
-    system(cmd.str().c_str());
-  }
-
-
-
-  int data_fd = shm_open("/sort_data", O_RDWR, 0700);
+  int data_fd = open(argv[1], O_RDWR);
   if (data_fd == -1) {
-    perror("Unable to open /sort_data shared memory segment");
-    exit(8);
+    perror("Unable to open file");
+    return 8;
   }
 
-  // Get the output of gensort:
-  Record* data = static_cast<Record *>(mmap(NULL, num_recs * 100ull,
+  struct stat sb;
+  if (fstat(data_fd, &sb) == -1) {
+    perror("Unable to stat file");
+    return 8;
+  }
+  
+  Record* data = static_cast<Record *>(mmap(NULL, sb.st_size,
 					    PROT_READ | PROT_WRITE,
 					    MAP_SHARED | MAP_NORESERVE,
 					    data_fd, 0));
 
   if (data == MAP_FAILED) {
     perror("Unable to map /sort_data shared memory segment");
-    exit(8);
+    return 8;
   }
 
   struct timeval start_sort;
@@ -120,23 +72,7 @@ int main(int argc, char **argv) {
 
   // Now sort the data!  Simplest possible sort implementation -- just invoke
   // std::sort().
-  cout << "SORTING DATA ==============================================" << endl;
-  std::sort(data, data + num_recs, compare_records);
-
-  struct timeval start_verify;
-  {
-    int rc = gettimeofday(&start_verify, NULL);
-    assert(rc == 0);
-  }
-
-  // Invoke valsort to verify that our output is correct:
-  cout << "VERIFYING SORT ============================================" << endl;
-  {
-    ostringstream cmd;
-    cmd << "VERIFY=1 SORT_NUM_RECS=" << num_recs
-	<< " LD_PRELOAD=$PWD/preload.so ./gensort-1.5/valsort sort_data";
-    system(cmd.str().c_str());
-  }
+  std::sort(data, data + (sb.st_size / 100), compare_records);
 
   struct timeval done;
   {
@@ -144,10 +80,7 @@ int main(int argc, char **argv) {
     assert(rc == 0);
   }
 
-  cout << "Data generation: " << elapsed_time(start_generation, start_verify_input) << "s" << endl;
-  cout << "Data validation: " << elapsed_time(start_verify_input, start_sort) << "s" << endl;
-  cout << "Sort:            " << elapsed_time(start_sort, start_verify) << "s" << endl;
-  cout << "Verify:          " << elapsed_time(start_verify, done) << "s" << endl;
+  cout << "Sort time: " << elapsed_time(start_sort, done) << "s" << endl;
 
   return 0;
 }
