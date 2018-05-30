@@ -1,0 +1,6 @@
+curl http://www.ordinal.com/try.cgi/gensort-1.5.tar.gz -O
+tar zxvf gensort-1.5.tar.gz
+cd gensort-1.5
+make USE_SUMP_PUMP=0
+cd ..
+make
