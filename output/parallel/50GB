@@ -1,0 +1,37 @@
+RECORDS_TO_SORT=500000000
+MEMORY_USED_GB=46.566
+
+GENERATING INPUT =======================================================
+
+real	1m7.221s
+user	0m44.372s
+sys	0m22.844s
+
+VERIFYING INPUT IS UNSORTED ============================================
+First unordered record is record 2
+Records: 500000000
+Checksum: ee6c9a92867b514
+ERROR - there are 250006454 unordered records
+
+real	1m10.279s
+user	0m54.904s
+sys	0m15.372s
+
+SORTING DATA ===========================================================
+Sort time: 13.502035s
+
+real	0m14.268s
+user	21m34.920s
+sys	8m28.128s
+
+VERIFYING OUTPUT IS SORTED =============================================
+Records: 500000000
+Checksum: ee6c9a92867b514
+Duplicate keys: 0
+SUCCESS - all records are in order
+
+real	1m5.892s
+user	0m51.596s
+sys	0m14.296s
+
+DONE ===================================================================
