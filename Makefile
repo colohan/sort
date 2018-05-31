@@ -1,4 +1,4 @@
-CXXFLAGS = -Wall -std=c++11 -g -fopenmp -D_GLIBCXX_PARALLEL
+CXXFLAGS = -Wall -std=c++11 -g -fopenmp -D_GLIBCXX_PARALLEL -O3
 
 .PHONY: all clean
 
