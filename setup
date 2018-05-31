@@ -1,3 +1,7 @@
+sudo apt-get install git bc make gcc g++ zlib1g-dev emacs
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get update
 curl http://www.ordinal.com/try.cgi/gensort-1.5.tar.gz -O
 tar zxvf gensort-1.5.tar.gz
 cd gensort-1.5
