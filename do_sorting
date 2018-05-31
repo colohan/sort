@@ -1,9 +1,17 @@
 #!/bin/bash
-./benchmark_sort 1000000000 2>&1 >1GB
-./benchmark_sort 5000000000 2>&1 >5GB
-./benchmark_sort 10000000000 2>&1 >10GB
-./benchmark_sort 50000000000 2>&1 >50GB
-./benchmark_sort 100000000000 2>&1 >100GB
-./benchmark_sort 500000000000 2>&1 >500GB
-./benchmark_sort 1000000000000 2>&1 >1000GB
-./benchmark_sort 2000000000000 2>&1 >2000GB
+echo 1GB running
+( ./benchmark_sort 1000000000 ) 2>&1 >1GB
+echo 5GB running
+( ./benchmark_sort 5000000000 ) 2>&1 >5GB
+echo 10GB running
+( ./benchmark_sort 10000000000 ) 2>&1 >10GB
+echo 50GB running
+( ./benchmark_sort 50000000000 ) 2>&1 >50GB
+echo 100GB running
+( ./benchmark_sort 100000000000 ) 2>&1 >100GB
+echo 1000GB running
+( ./benchmark_sort 1000000000000 ) 2>&1 >1000GB
+echo 500GB running
+( ./benchmark_sort 500000000000 ) 2>&1 >500GB
+echo 2000GB running
+( ./benchmark_sort 2000000000000 ) 2>&1 >2000GB

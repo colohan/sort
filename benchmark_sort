@@ -10,15 +10,15 @@ echo "MEMORY_USED_GB=$MEMORY_USED_GB"
 
 echo
 echo "GENERATING INPUT ======================================================="
-time ./gensort-1.5/gensort $RECORDS_TO_SORT /dev/shm/sort_data
+(time ./gensort-1.5/gensort $RECORDS_TO_SORT /dev/shm/sort_data) 2>&1
 echo
 echo "VERIFYING INPUT IS UNSORTED ============================================"
-time ./gensort-1.5/valsort /dev/shm/sort_data
+(time ./gensort-1.5/valsort /dev/shm/sort_data) 2>&1
 echo
 echo "SORTING DATA ==========================================================="
-time ./sort /dev/shm/sort_data
+(time ./sort /dev/shm/sort_data) 2>&1
 echo
 echo "VERIFYING OUTPUT IS SORTED ============================================="
-time ./gensort-1.5/valsort /dev/shm/sort_data
+(time ./gensort-1.5/valsort /dev/shm/sort_data) 2>&1
 echo
 echo "DONE ==================================================================="
